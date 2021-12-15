@@ -1,0 +1,23 @@
+###########################################
+# Syntax Coloring Map For Stepper Motor library
+###########################################
+
+###########################################
+# Datatypes (KEYWORD1)
+###########################################
+
+SRSC	KEYWORD1
+
+###########################################
+# Methods and Functions (KEYWORD2)
+###########################################
+
+begin   KEYWORD2
+isAvailable KEYWORD2
+readPacket  KEYWORD2
+writePacket KEYWORD2
+writePacket KEYWORD2
+writeBinaryPacket   KEYWORD2
+definePacketType    KEYWORD2
+definePacketTypes   KEYWORD2
+loop    KEYWORD2
