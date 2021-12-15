@@ -1,16 +1,19 @@
 #ifndef PACKET_TYPE_H
 #define PACKET_TYPE_H
 
+#include <stdint.h>
+#include "PayloadSize.h"
+
 class PacketType {
   private:
     uint8_t packetTypeIdentifier;
-    int8_t payloadSize;
-    bool isCritical;
+    PayloadSize payloadSize;
+    bool critical;
 
   public:
-    PacketType(uint8_t packetTypeIdentifier, int8_t payloadSize, bool isCritical = false);
+    PacketType(uint8_t packetTypeIdentifier, PayloadSize payloadSize, bool isCritical = false);
     uint8_t getPacketTypeIdentifier();
-    int8_t getPayloadSize();
+    PayloadSize getPayloadSize();
     bool isCritical();
 };
 

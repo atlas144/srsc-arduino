@@ -1,15 +1,15 @@
-#include "PacketTypr.h"
+#include "PacketType.h"
 
-PacketType::PacketType(uint8_t packetTypeIdentifier, int8_t payloadSize, bool isCritical = false) : packetTypeIdentifier(packetTypeIdentifier), payloadSize(payloadSize), isCritical(isCritical) {}
+PacketType::PacketType(uint8_t packetTypeIdentifier, PayloadSize payloadSize, bool isCritical) : packetTypeIdentifier(packetTypeIdentifier), payloadSize(payloadSize), critical(isCritical) {}
 
 uint8_t PacketType::getPacketTypeIdentifier() {
   return packetTypeIdentifier;
 }
 
-int8_t PacketType::getPayloadSize() {
+PayloadSize PacketType::getPayloadSize() {
   return payloadSize;
 }
 
 bool PacketType::isCritical() {
-  return isCritical;
+  return critical;
 }
