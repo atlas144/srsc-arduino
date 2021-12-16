@@ -138,32 +138,35 @@ bool SRSC::buildBinaryPacket(uint8_t buffer[], uint8_t packetType, uint8_t paylo
 }
 
 bool SRSC::readConnect() {
-  uint8_t connectPacket[6], connectPacketPayload[4], connackPacket[6], connackPacketPayload[4];
+  uint8_t connectPacket[6], connectPacketBinaryPayload[4], connackPacket[6], connackPacketBinaryPayload[4];
 
   communicator.readBytes(connectPacket, 6);
   
   if (isValid(connectPacket, 6)) {
     uint32_t& payload = *(new uint32_t());
 
-    if (!getBinaryPayload(connectPacketPayload, connectPacket)) {
-      return false;
+    if (getBinaryPayload(connectPacketBinaryPayload, connectPacket)) {
+      parseBinaryPayload(payload, connectPacketBinaryPayload);
+      semaphoreSize = countSemaphoreSize(payload);
+
+      semaphore = 0;
+      lastPacketId = 0;
+
+      for (uint8_t i = 0; i < 10; i++) {
+        acceptedPacketIds[i] = 0;
+      }
+
+      parsePayload(connackPacketBinaryPayload, bufferSize);
+  
+      if (buildBinaryPacket(connackPacket, 0x01, connackPacketBinaryPayload)) {
+        if (communicator.write(connackPacket, 6) {
+          return true;
+        }
+      }
     }
-    
-    parseBinaryPayload(payload, connectPacketPayload);
-    semaphoreSize = countSemaphoreSize(payload);
-  } else {
-    return false;
   }
 
-  parsePayload(connackPacketPayload, bufferSize);
-  
-  if (!buildBinaryPacket(connackPacket, 0x01, connackPacketPayload)) {
-    return false;
-  }
-  
-  communicator.write(connackPacket, 6);
-
-  return true;
+  return false;
 }
 
 bool SRSC::readConnack() {
