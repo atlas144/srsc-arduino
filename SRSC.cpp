@@ -22,7 +22,7 @@ bool SRSC::isValid(PacketType* packetType, uint8_t checksum, uint8_t* payload, u
   return validationSum == 255 ? true : false;
 }
 
-bool SRSC::isValid(uint8_t binaryPacket*, uint8_t packetLength) {
+bool SRSC::isValid(uint8_t* binaryPacket, uint8_t packetLength) {
   uint8_t validationSum = 0;
 
   for (uint8_t i = 0; i < packetLength; i++) {
@@ -72,14 +72,14 @@ bool SRSC::getBinaryPayload(uint8_t buffer[], uint8_t binaryPacket[]) {
   payload = binaryPayload[0];
 }*/
 
-template <typename T>
+/*template <typename T>
 void SRSC::parseBinaryPayload(T& payload, uint8_t* binaryPayload) {
   payload = 0;
 
   for (uint8_t i = 0; i < sizeof(payload); i++) {
     payload += binaryPayload[i] * (255 * i);
   }
-}
+}*/
 /*
 void SRSC::parseBinaryPayload(uint32_t& payload, uint8_t* binaryPayload) {
   payload = 0;
@@ -93,12 +93,12 @@ void SRSC::parseBinaryPayload(uint32_t& payload, uint8_t* binaryPayload) {
   buffer[0] = payload;
 }*/
 
-template <typename T>
+/*template <typename T>
 void SRSC::parsePayload(uint8_t* buffer, T payload) {
   for (uint8_t i = 0; i < sizeof(payload); i++) {
     buffer[i] = payload >> (8 * i);
   }
-}
+}*/
 
 /*void SRSC::parsePayload(uint8_t* buffer, uint32_t payload) {
   for (uint8_t i = 0; i < 4; i++) {
@@ -159,7 +159,7 @@ bool SRSC::readConnect() {
       parsePayload(connackPacketBinaryPayload, bufferSize);
   
       if (buildBinaryPacket(connackPacket, 0x01, connackPacketBinaryPayload)) {
-        if (communicator.write(connackPacket, 6) {
+        if (communicator.write(connackPacket, 6)) {
           return true;
         }
       }
@@ -172,7 +172,7 @@ bool SRSC::readConnect() {
 bool SRSC::readConnack() {
   uint8_t connackPacket[6], connackPacketPayload[4];
 
-  parsePayload(connectPacketPayload, bufferSize);
+  //parsePayload(connectPacketPayload, bufferSize);
   
   communicator.readBytes(connackPacket, 6);
 
@@ -231,16 +231,16 @@ bool SRSC::readPacket(Packet* incomingPacket) {
         return readPacket(incomingPacket);
       } default: {
         uint8_t packetTypeIdentifier = communicator.read();
-        PacketType* packetType
+        PacketType* packetType;
         
-        if (getPacketType(packetTypeIdentifier)) {
+        if (getPacketType(packetType, packetTypeIdentifier)) {
           uint8_t checksum = communicator.read(), id = 0, payloadSize = packetType->getPayloadSize();
 
           if (packetType->isCritical()) {
             id = communicator.read();
 
             if (acceptedPacketIds[id % 10] == id) {
-              return readPacket();
+              return readPacket(incomingPacket);
             }
           }
           
@@ -249,7 +249,7 @@ bool SRSC::readPacket(Packet* incomingPacket) {
           communicator.readBytes(payload, payloadSize);
           
           if (isValid(packetType, checksum, payload, id)) {
-            incomingPacket = new Packet(&packetType, payload);
+            incomingPacket = new Packet(*packetType, *payload);
 
             if (packetType->isCritical()) {
               acceptedPacketIds[id % 10] = id;
@@ -271,7 +271,7 @@ bool SRSC::readPacket(Packet* incomingPacket) {
 bool SRSC::writePacket(uint8_t packetType) {
   PacketType* packetTypeObject;
   
-  if (getPacketType(packetTypeObject, packetType) {
+  if (getPacketType(packetTypeObject, packetType)) {
     uint8_t sendCounter = packetTypeObject->isCritical() ? 3 : 1;
 
     if (semaphore + sendCounter > semaphoreSize) {
@@ -296,11 +296,10 @@ bool SRSC::writePacket(uint8_t packetType) {
   return false;
 }
 
-template <typename T>
-bool SRSC::writePacket(uint8_t packetType, T payload) {
+/*template <typename T> bool SRSC::writePacket(uint8_t packetType, T payload) {
   PacketType* packetTypeObject;
   
-  if (getPacketType(packetTypeObject, packetType) {
+  if (getPacketType(packetTypeObject, packetType)) {
     uint8_t sendCounter = packetTypeObject->isCritical() ? 3 : 1;
 
     if (semaphore + sendCounter > semaphoreSize) {
@@ -323,12 +322,12 @@ bool SRSC::writePacket(uint8_t packetType, T payload) {
   }
 
   return false;
-}
+}*/
 
 bool SRSC::writeBinaryPacket(uint8_t packetType, uint8_t* payload) {
   PacketType* packetTypeObject;
   
-  if (getPacketType(packetTypeObject, packetType) {
+  if (getPacketType(packetTypeObject, packetType)) {
     uint8_t sendCounter = packetTypeObject->isCritical() ? 3 : 1;
 
     if (semaphore + sendCounter > semaphoreSize) {
